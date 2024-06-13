@@ -18,7 +18,6 @@ venv/
 test/__pycache__/
 
 # Docker
-Dockerfile
 *.dockerignore
 
 # IDEs
