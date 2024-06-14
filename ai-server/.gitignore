@@ -1,15 +1,6 @@
 # Python
 __pycache__/
-*.py[cod]
-*.pyd
-*.pyo
-*.pyz
-*.pyzw
-*.egg-info/
-dist/
-build/
-*.egg
-*.spec
+app/__pycache__/
 
 # Virtual environment
 venv/
@@ -19,12 +10,3 @@ test/__pycache__/
 
 # Docker
 *.dockerignore
-
-# IDEs
-.idea/
-.vscode/
-*.swp
-*.swo
-*.swn
-*.bak
-*.tmp
