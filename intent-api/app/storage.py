@@ -9,6 +9,8 @@ class IntentStorage:
         self.model = SentenceTransformer('sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2')
         self.intents: Dict[str, Intent] = {}
         self.embeddings: Dict[str, List[float]] = {}
+        self.responses: Dict[str, str] = {}
+        
         
     def load(self):
         try:
@@ -16,14 +18,17 @@ class IntentStorage:
                 data = json.load(f)
                 self.intents = {intent["name"]: Intent(**intent) for intent in data["intents"]}
                 self.embeddings = data["embeddings"]
+                self.responses = data["responses"]
         except FileNotFoundError:
             self.intents = {}
             self.embeddings = {}
+            self.responses = {}
     
     def save(self):
         data = {
             "intents": [intent.dict() for intent in self.intents.values()],
-            "embeddings": self.embeddings
+            "embeddings": self.embeddings,
+            "responses": self.responses
         }
         with open(self.file_path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False)
@@ -39,11 +44,20 @@ class IntentStorage:
         embeddings = self.model.encode(intent.examples)
         avg_embeddings = embeddings.mean(axis=0)
         self.embeddings[intent.name] = avg_embeddings.tolist()
+        self.responses[intent.name] = intent.response
         self.save()
         
     def update_intent(self, name: str, intent: Intent):
         self.intents[name] = intent
         embeddings = self.model.encode(intent.examples)
         avg_embeddings = embeddings.mean(axis=0)
-        self.embeddings[name] = avg_embeddings.tolist()    
+        self.embeddings[name] = avg_embeddings.tolist()
+        self.responses[name] = intent.response    
         self.save()
+        
+    def delete_intent(self, name: str):
+        if name in self.intents:
+            del self.intents[name]
+            del self.embeddings[name]
+            del self.responses[name]
+            self.save()
