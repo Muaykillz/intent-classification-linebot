@@ -1,10 +1,20 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import ValidationError
 from app.models import Intent, InputText
 from app.storage import IntentStorage
 from app.utils import cosine_sim
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 intent_storage = IntentStorage("data/intents.json")
 intent_storage.load()
 
@@ -35,6 +45,13 @@ async def update_intent(intent_name: str, intent: Intent):
 @app.get("/intents")
 async def get_all_intents():
     return intent_storage.get_all_intents()
+
+@app.get("/intents/{intent_name}")
+async def get_intent(intent_name: str):
+    intent = intent_storage.get_intent(intent_name)
+    if not intent:
+        raise HTTPException(status_code=404, detail="Intent not found")
+    return intent
 
 @app.delete("/intents/{intent_name}", status_code=204)
 async def delete_intent(intent_name: str):
