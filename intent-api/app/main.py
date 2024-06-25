@@ -20,15 +20,16 @@ intent_storage.load()
 
 # Constants
 SIMILARITY_THRESHOLD = 0.7
-FALLBACK_INTENT = "fallback"
+FALLBACK_INTENT = "IveFfDfj" # fallback intent id
 
 @app.post("/intents", status_code=201)
 async def create_intent(intent: Intent):
     try:
-        if intent_storage.get_intent(intent.name):
+        if intent_storage.get_intent_by_name(intent.name):
             raise HTTPException(status_code=400, detail="Intent already exists")
-        intent_storage.add_intent(intent)
-        return {"message": "Intent created successfully"}
+        new_intent = intent_storage.add_intent(intent)
+        print(new_intent)
+        return new_intent.dict()
     except ValidationError as e:
         raise HTTPException(status_code=422, detail=e.errors())
 
@@ -67,12 +68,12 @@ async def classify_text(input: InputText):
         max_score = max(scores)
         
         if max_score >= SIMILARITY_THRESHOLD:
-            predicted_intent_id = scores.index(max_score) + 1 # ข้าม index 0 ที่เป็น fallback
-            predicted_intent = list(intent_storage.intents.keys())[predicted_intent_id]
+            predicted_intent_idx = scores.index(max_score) + 1 # ข้าม index 0 ที่เป็น fallback
+            predicted_intent_id = list(intent_storage.intents.keys())[predicted_intent_idx]
         else:
-            predicted_intent = FALLBACK_INTENT
-        
-        response_text = intent_storage.responses[predicted_intent]
-        return {"intent": predicted_intent, "response": response_text}
+            predicted_intent_id = FALLBACK_INTENT
+        intent_name = intent_storage.intents[predicted_intent_id].name
+        response_text = intent_storage.responses[predicted_intent_id]
+        return {"name": intent_name, "id": predicted_intent_id, "response": response_text}
     except ValidationError as e:
         raise HTTPException(status_code=422, detail=e.errors())
