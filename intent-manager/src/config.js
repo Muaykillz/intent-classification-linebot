@@ -1,0 +1,1 @@
+export const BASE_URL = 'https://intent-classification-api-kz5jfiuwqq-as.a.run.app';
