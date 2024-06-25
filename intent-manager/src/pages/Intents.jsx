@@ -1,60 +1,48 @@
-import React, { useState } from 'react';
-import Layout from '../components/Layout';
-import { ChatBubbleOvalLeftIcon, PlusIcon, ArrowUturnLeftIcon } from '@heroicons/react/24/outline';
+import React, { useState, useRef } from "react";
+import Layout from "../components/Layout";
+import IntentList from "../components/Intent/IntentList";
+import { PlusIcon } from "@heroicons/react/24/outline";
 
 function Intents() {
-    const [isOpen, setIsOpen] = useState(false);
+  const [newIntent, setNewIntent] = useState(null);
+  const intentListRef = useRef(null);
 
-    const handleToggle = () => {
-        setIsOpen(!isOpen);
+  const handleCreateIntent = () => {
+    const newIntent = {
+      id: "",
+      name: "",
+      examples: [],
+      response: "",
+      isNew: true,
     };
+    setNewIntent(newIntent);
+    setTimeout(() => {
+      if (intentListRef.current) {
+        intentListRef.current.scrollIntoView({ behavior: "smooth" });
+      }
+    }, 100);
+  };
 
-    return (
-        <>
-            <Layout>
-                <div className="flex justify-between items-center mb-4">
-                    <h1 className="text-2xl ml-4 font-bold">Intents</h1>
-                    <button className="btn btn-neutral w-40 text-md flex items-center justify-center gap-2">
-                        <PlusIcon className='w-6 h-6' />
-                        Create Intent
-                    </button>
-                </div>
-                <div className={`collapse collapse-arrow border-2 border-base-200 rounded-xl ${isOpen ? 'open' : ''}`}>
-                    <input
-                        type="checkbox"
-                        checked={isOpen}
-                        onChange={handleToggle}
-                        className="hidden"
-                    />
-                    <div
-                        className="collapse-title text-xl font-medium select-none"
-                        onClick={handleToggle}
-                    >
-                        Intent name
-                    </div>
-                    {isOpen && (
-                        <div className="collapse-content border-t-2 border-base-200 p-4 gap-4 flex flex-col">
-                            <div className="p-4 rounded-md bg-base-100 flex flex-col gap-2 border-2 border-base-200">
-                                <h2 className='font-semibold mb-2'>Training pharses</h2>
-                                <label className="input input-bordered flex items-center gap-2">
-                                    <ChatBubbleOvalLeftIcon className="w-6 h-6" />
-                                    <input type="text" className="grow" placeholder="Add user expression" />
-                                </label>
-                            </div>
+  return (
+    <>
+      <Layout>
+        <div className="mb-4 flex items-center justify-between">
+          <h1 className="ml-4 flex gap-2 text-3xl font-bold">Intents</h1>
+          <button
+            className="text-md btn btn-neutral flex w-40 items-center justify-center gap-2"
+            onClick={handleCreateIntent}
+          >
+            <PlusIcon className="h-6 w-6" />
+            Create Intent
+          </button>
+        </div>
 
-                            <div className="p-4 rounded-md bg-base-100 flex flex-col gap-2 border-2 border-base-200">
-                                <h2 className='font-semibold mb-2'>Response</h2>
-                                <label className="input input-bordered flex items-center gap-2">
-                                    <ArrowUturnLeftIcon className="w-6 h-6" />
-                                    <input type="text" className="grow" placeholder="Add a response" />
-                                </label>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </Layout>
-        </>
-    );
+        <div ref={intentListRef}>
+          <IntentList newIntent={newIntent} setNewIntent={setNewIntent} />
+        </div>
+      </Layout>
+    </>
+  );
 }
 
 export default Intents;
